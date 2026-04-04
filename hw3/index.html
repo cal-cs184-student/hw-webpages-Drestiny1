@@ -28,17 +28,12 @@
 	<body>
 		<div class="container">
 		<h1>CS184/284A Spring 2025 Homework 3 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+		<div style="text-align: center;">Names: Nicole Jin</div>
 
 		<br>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
-		
-		<figure>
-			<img src="cornell.png" alt="Cornell Boxes with Bunnies" style="width:70%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
+		Link to webpage: <a href="https://cal-cs184-student.github.io/hw-webpages-Drestiny1/">cal-cs184-student.github.io/hw-webpages-Drestiny1/</a>
+		Link to GitHub repository: <a href="https://github.com/cal-cs184-student/hw3-pathtracer-33">github.com/cal-cs184-student/hw3-pathtracer-33</a>
 
 		<!--
 		We've already added one heading per part, to make your write-up as navigable when grading. Please fit your write-up within these sections!
@@ -48,59 +43,280 @@
 		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
 
 		<h2>Part 1: Ray Generation and Scene Intersection</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
+		For ray generation and rendering, I send rays from the camera to the scene to figure out what the pixels should look like. If the ray hits an object, I use information about the surface to determine the color and if the ray doesn't hit anything, the pixel stays empty. 
+		<p>I also implemented the triangle intersection algorithm, which tests whether a ray intersects a triangle. I used the Möller–Trumbore algorithm, which computes where the ray would hit the triangle and uses weights to determine how close the point is to each corner. If the point is inside the triangle and in front of the camera, the ray hits the triangle.</p>
 		<div style="display: flex; flex-direction: column; align-items: center;">
 			<table style="width: 100%; text-align: center; border-collapse: collapse;">
 			  <tr>
 				<td style="text-align: center;">
-				  <img src="cornell.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="1-1.png" width="400px"/>
+				  <figcaption>Rendering of cube.dae</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="cornell.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="cornell.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="1-2.png" width="400px"/>
+				  <figcaption>Rendering of CBSpheres</figcaption>
 				</td>
 				<td style="text-align: center;">
-				  <img src="cornell.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
+				  <img src="1-3.png" width="400px"/>
+				  <figcaption>Rendering of Bunny</figcaption>
 				</td>
 			  </tr>
 			</table>
 		</div>
 		
 		<h2>Part 2: Bounding Volume Hierarchy</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		To speed up rendering, I used Bounding Volume Hierarchy (BVH), which uses a tree structure to group nearby objects together in boxes. Instead of checking each object one by one, the program first checks the larger boxes, choosing a direction, and then continuing until the boxes are small enough. This makes rendering a lot faster.
+
+		<p>Rendering without BVH is O(n). Rendering with BVH is around O(log n) because of the tree structure and faster search. Rendering the bunny image without using BVH takes over 498 seconds. Rendering it with BVH took around 0.53 seconds.</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="2-1.png" width="400px"/>
+				  <figcaption>Rendering of Bunny</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="2-2.png" width="400px"/>
+				  <figcaption>Rendering of Blob</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="2-3.png" width="400px"/>
+				  <figcaption>Rendering of Bench</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 
 		<h2>Part 3: Direct Illumination</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		I implemented direct lighting two different ways. The first is hemisphere sampling and the second is importance sampling.
+
+		<p>In Hemisphere Sampling, we estimate incoming light from all directions uniformly over the hemisphere at each point. This method is inefficient because it samples even in directions that don't contribute light.</p>
+		
+		<p>In Importance Sampling, we focus on directions that contribute light. For each light in the scene, we sample points between the light source and the point. If there is no other object between the light source and the point, then we know that there's light.</p>
+
+		<p>Hemisphere Sampling is often produces more noise compared to Importance sampling because it samples many different directions that don't produce light. For Importance Sampling, as the number of light sources increases, shadows become smoother, whereas in hemisphere sampling, it remains noisy even at higher sample counts</p>
+		
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="hemi.png" width="400px"/>
+				  <figcaption>Rendering with Hemisphere Sampling</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="importance.png" width="400px"/>
+				  <figcaption>Rendering with Importance Sampling</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="l1.png" width="400px"/>
+				  <figcaption>Importance Sampling with 1 Light source</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="l4.png" width="400px"/>
+				  <figcaption>Importance Sampling with 4 Light sources</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="l16.png" width="400px"/>
+				  <figcaption>Importance Sampling with 16 Light Sources</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="l64.png" width="400px"/>
+				  <figcaption>Importance Sampling with 64 Light Sources</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 
 		<h2>Part 4: Global Illumination</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		I implemented indirect lighting, which simulates how light reflects off an object. When a ray hits an object, I first compute the direct lighting from the light source. Then I randomly choose a new direction for the ray to bounce off using the material's properties. Each bounce contributes less light. I also use a technique called Russian Roulette, which randomly stops some ray bounces early and adjust their contribution so that the final result stays accurate. Overall, this allows the lighting on the rendered image to look more realistic.
+
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="gi_bunny.png" width="400px"/>
+				  <figcaption>Global Illumination Bunny</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="gi_spheres.png" width="400px"/>
+				  <figcaption>Global Illumination Spheres</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="direct.png" width="400px"/>
+				  <figcaption>Direct Illumination of Bunny</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="indirect 2.png" width="400px"/>
+				  <figcaption>Indirect Illumination of Bunny</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>Accumulate Bounce = True sums all of the bounces from 0 up to the specified depth. Accumulate Bounce = False only uses the light from the nth bounce.</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bounce_0.png" width="400px"/>
+				  <figcaption>0 Bounces, Accum = False</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bounce_1.png" width="400px"/>
+				  <figcaption>1 Bounce, Accum = False </figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bounce_2.png" width="400px"/>
+				  <figcaption>2 Bounces, Accum = False</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bounce_3.png" width="400px"/>
+				  <figcaption>3 Bounces, Accum = False</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bounce_4.png" width="400px"/>
+				  <figcaption>4 Bounces, Accum = False</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bounce_5.png" width="400px"/>
+				  <figcaption>5 Bounces, Accum = False</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+		<p>As you can see in the images above, accumulate bounce = false often results in darker images. It's useful for analyzing the effect of individual bounces. We can see that most of the light come from the first few bounces and they gradually grow darker after the 2nd bounce. The second bounce is especially important because it introduces indirect lighting. The third bounce and bounces after that introduce softer light and further refine the image to make it look more natural and realistic compared to rasterization.</p>
+
+		<p>The images below are with accumulating</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="accum_0.png" width="400px"/>
+				  <figcaption>0 Bounces, Accum = True</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="accum_1.png" width="400px"/>
+				  <figcaption>1 Bounce, Accum = True </figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="accum_2.png" width="400px"/>
+				  <figcaption>2 Bounces, Accum = True</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="accum_3.png" width="400px"/>
+				  <figcaption>3 Bounces, Accum = True</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="accum_4.png" width="400px"/>
+				  <figcaption>4 Bounces, Accum = True</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="accum_5.png" width="400px"/>
+				  <figcaption>5 Bounces, Accum = True</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
+
+		<p>After adding the bounces together, we can see that the lighting on the image slowly looks more and more realistic. </p>
+		<p>The images below showcase the effect of differing depths for Russian Roulette and also different samples per pixel.</p>
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="rr_0.png" width="400px"/>
+				  <figcaption>Russian Roulette, Max Depth = 0</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="rr_1.png" width="400px"/>
+				  <figcaption>Russian Roulette, Max Depth = 1</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="rr_2.png" width="400px"/>
+				  <figcaption>Russian Roulette, Max Depth = 2</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="rr_3.png" width="400px"/>
+				  <figcaption>Russian Roulette, Max Depth = 3</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="rr_4.png" width="400px"/>
+				  <figcaption>Russian Roulette, Max Depth = 4</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="rr_100.png" width="400px"/>
+				  <figcaption>Russian Roulette, Max Depth = 100</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="spp_1.png" width="400px"/>
+				  <figcaption>Bunny, 1 Sample per pixel</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="spp_2.png" width="400px"/>
+				  <figcaption>Bunny, 2 Samples per pixel</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="spp_4.png" width="400px"/>
+				  <figcaption>Bunny, 4 Samples per pixel</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="spp_8.png" width="400px"/>
+				  <figcaption>Bunny, 8 Samples per pixel</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="spp_16.png" width="400px"/>
+				  <figcaption>Bunny, 16 Samples per pixel</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="spp_64.png" width="400px"/>
+				  <figcaption>Bunny, 64 Samples per pixel</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="spp_1024.png" width="400px"/>
+				  <figcaption>Bunny, 1024 Samples per pixel</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 
 		<h2>Part 5: Adaptive Sampling</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+		Adaptive Sampling makes rendering more efficient by spending more time rendering noisy pixels and less time on pixels that have already converged. Adaptive sampling monitors how stable a pixel's brightness is when new samples are added. For each batch, I compute the mean and variance to get a 95% confidence interval and once the pixel has converged, I stop sampling. In this way, it saves time by focusing on areas that are harder to render, while stopping early for areas that are simpler.
+		<div style="display: flex; flex-direction: column; align-items: center;">
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="bunny.png" width="400px"/>
+				  <figcaption>Rendering of Bunny using Adaptive Sampling</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="bunny_rate.png" width="400px"/>
+				  <figcaption>Sampling Rate Image</figcaption>
+				</td>
+			  </tr>
+			  <tr>
+				<td style="text-align: center;">
+				  <img src="spheres.png" width="400px"/>
+				  <figcaption>Rendering of Blob using Adaptive Sampling</figcaption>
+				</td>
+				<td style="text-align: center;">
+				  <img src="spheres_rate.png" width="400px"/>
+				  <figcaption>Sampling Rate Image</figcaption>
+				</td>
+			  </tr>
+			</table>
+		</div>
 
-		<h2>(Optional) Part 6: Extra Credit Opportunities</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-		
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
-			</li>
-		</ul>
+		<p>In the Sampling Rate Images, warming colors like red indicate that the pixels require more time to converge due to higher variance. Cooler colors like blue indicate that the pixels converge quickly such as flat surfaces or evenly lit areas.</p>
+
 		</div>
 	</body>
 </html>
